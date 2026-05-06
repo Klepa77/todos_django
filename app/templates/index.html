@@ -25,18 +25,34 @@
         </header>
 
         <!-- Input Section -->
-        <section class="mb-10">
-            <div class="relative group">
-                <input type="text"
-                    placeholder="Добавить новую задачу..."
-                    class="w-full pl-5 pr-14 py-4 bg-white border-none rounded-2xl shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-400">
-                <button class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center">
-                    <svg xmlns="http://w3.org" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                </button>
+        <!-- Input Section -->
+<section class="mb-10">
+    <form method="post" action="{% url 'app:add_todo' %}" class="flex flex-col gap-3">
+        {% csrf_token %}
+        <div class="relative group">
+            <input type="text" name="text" required
+                placeholder="Добавить новую задачу..."
+                class="w-full pl-5 pr-5 py-4 bg-white border-none rounded-2xl shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-400">
+        </div>
+
+        <div class="flex gap-3">
+            <!-- Поле даты и времени -->
+            <div class="relative flex-1">
+                <input type="datetime-local" name="deadline" required
+                    class="w-full px-5 py-3 bg-white border-none rounded-xl shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-600 text-sm">
             </div>
-        </section>
+
+            <button type="submit"
+                class="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center font-medium shadow-md shadow-indigo-100">
+                <svg xmlns="http://w3.org" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Добавить
+            </button>
+        </div>
+    </form>
+</section>
+
 
         <!-- Filters -->
         <nav class="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -74,11 +90,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                     </button>
-                    <button class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
+                    <a href="{% url 'app:delete_todo' todo.pk %}"
+                            class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
                         <svg xmlns="http://w3.org" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
             {% else %}
