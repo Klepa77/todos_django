@@ -39,3 +39,15 @@ def delete_todo(request, pk):
             'message': 'Задача успешно удалена'
         })
     return JsonResponse({'status': 'error'}, status=400)
+
+def finish_todo(request,pk):
+    if request.method == 'POST':
+        todo = get_object_or_404(Todo,pk=pk)
+        todo.is_completed = True
+        todo.save()
+        return JsonResponse({
+            'status': 'success',
+            'id': pk,
+            'message':'Задача успешно выполнена'
+        })
+    return JsonResponse({'status': 'error'}, status=400)
