@@ -1,7 +1,8 @@
 from .models import Todo
-from django.shortcuts import render,redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 from .utils import get_russian_date
+
 
 
 
@@ -28,5 +29,13 @@ def add_todo(request):
 def complete_todo(request,pk):
     pass
 
-def delete_todo(request,pk):
-    print('delete')
+def delete_todo(request, pk):
+    if request.method == 'POST': # Рекомендуется удалять через POST
+        todo = get_object_or_404(Todo, pk=pk)
+        todo.delete()
+        return JsonResponse({
+            'status': 'success',
+            'id': pk,
+            'message': 'Задача успешно удалена'
+        })
+    return JsonResponse({'status': 'error'}, status=400)
