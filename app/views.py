@@ -51,3 +51,16 @@ def finish_todo(request,pk):
             'message':'Задача успешно выполнена'
         })
     return JsonResponse({'status': 'error'}, status=400)
+
+
+def get_todo(request,pk):
+    todo = get_object_or_404(Todo,pk=pk)
+    return JsonResponse({
+        'status': 'success',
+        'todo':{
+            'id': pk,
+            'text':todo.text,
+            'deadline':todo.deadline,
+        }
+
+    })
