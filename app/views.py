@@ -1,3 +1,5 @@
+import json
+
 from .models import Todo
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
@@ -19,11 +21,32 @@ def index(request):
     return render(request, 'index.html',{'current_date':current_date,
                                          'todos':todos})
 
+
+
 def add_todo(request):
-    text = request.POST.get('text')
-    deadline = request.POST.get('deadline')
-    Todo.objects.create(text=text,deadline=deadline)
-    return redirect('app:index')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            text_value = data.get('text')
+            deadline_value = data.get('deadline')
+
+            if not text_value:
+                return JsonResponse(
+                    {'error': 'Текст задачи не может быть пустым'}, status=400)
+
+            todo = Todo.objects.create(
+                text=text_value,
+                deadline=deadline_value if deadline_value else None
+            )
+
+            return JsonResponse({'status': 'success',
+                                 'todo': {'id': todo.id, 'text': todo.text}})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Невалидный JSON'}, status=400)
+
+    return JsonResponse({'error': 'Метод не поддерживается'}, status=405)
 
 
 def complete_todo(request,pk):

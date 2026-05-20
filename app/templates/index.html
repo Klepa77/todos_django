@@ -33,11 +33,10 @@
     <!-- Input Section -->
     <!-- Input Section -->
     <section class="mb-10">
-        <form method="post" action="{% url 'app:add_todo' %}"
-              class="flex flex-col gap-3">
-            {% csrf_token %}
+        <form method="post"
+              class=" form flex flex-col gap-3">
             <div class="relative group">
-                <input  type="text" name="text" required
+                <input type="text" name="text" required
                        placeholder="Добавить новую задачу..."
                        class=" todo-input w-full pl-5 pr-5 py-4 bg-white border-none rounded-2xl shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-400">
             </div>
@@ -206,6 +205,36 @@
     let btnDelete = document.querySelector('#confirmDeleteBtn')
     let deleteId = null
     const csrfToken = getCookie('csrftoken');
+    let form = document.querySelector('.form')
+    let inputTodo = document.querySelector('.todo-input')
+    let dateInput = document.querySelector('.date-input')
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        let text = inputTodo.value
+        let deadline = dateInput.value
+
+        fetch(`/app/add_todo`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json; charset=UTF-8',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({
+                text: text,
+                deadline: deadline
+            })
+        })
+            .then((res) => {
+                return res.json();
+            })
+            .then((data) => {
+                location.reload();
+            })
+            .catch(error => console.warn(error));
+
+    })
 
     buttons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -298,14 +327,15 @@
         })
 
     })
-    let inputTodo = document.querySelector('.todo-input')
-    let dateInput = document.querySelector('.date-input')
-    function showTodo(todo){
+
+    function showTodo(todo) {
         inputTodo.value = todo.text
         dateInput.value = todo.deadline.slice(0, 16);
         inputTodo.dataset.id = todo.id
 
+
     }
+
 </script>
 </body>
 </html>
