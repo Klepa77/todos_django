@@ -6,8 +6,6 @@ from django.http import HttpResponse, JsonResponse
 from .utils import get_russian_date
 
 
-
-
 def hello_world(request):
     return HttpResponse('Hello, World!')
 
@@ -15,12 +13,12 @@ def hello_world(request):
 def home_page(request):
     return HttpResponse('Home Page')
 
+
 def index(request):
     current_date = get_russian_date()
     todos = Todo.objects.all().order_by('is_completed')
-    return render(request, 'index.html',{'current_date':current_date,
-                                         'todos':todos})
-
+    return render(request, 'index.html', {'current_date': current_date,
+                                          'todos': todos})
 
 
 def add_todo(request):
@@ -49,11 +47,8 @@ def add_todo(request):
     return JsonResponse({'error': 'Метод не поддерживается'}, status=405)
 
 
-def complete_todo(request,pk):
-    pass
-
 def delete_todo(request, pk):
-    if request.method == 'POST': # Рекомендуется удалять через POST
+    if request.method == 'POST':  # Рекомендуется удалять через POST
         todo = get_object_or_404(Todo, pk=pk)
         todo.delete()
         return JsonResponse({
@@ -63,27 +58,51 @@ def delete_todo(request, pk):
         })
     return JsonResponse({'status': 'error'}, status=400)
 
-def finish_todo(request,pk):
+
+def finish_todo(request, pk):
     if request.method == 'POST':
-        todo = get_object_or_404(Todo,pk=pk)
+        todo = get_object_or_404(Todo, pk=pk)
         todo.is_completed = True
         todo.save()
         return JsonResponse({
             'status': 'success',
             'id': pk,
-            'message':'Задача успешно выполнена'
+            'message': 'Задача успешно выполнена'
         })
     return JsonResponse({'status': 'error'}, status=400)
 
 
-def get_todo(request,pk):
-    todo = get_object_or_404(Todo,pk=pk)
+def get_todo(request, pk):
+    todo = get_object_or_404(Todo, pk=pk)
     return JsonResponse({
         'status': 'success',
-        'todo':{
+        'todo': {
             'id': pk,
-            'text':todo.text,
-            'deadline':todo.deadline,
+            'text': todo.text,
+            'deadline': todo.deadline,
         }
 
     })
+
+
+def update_todo(request,pk):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            text_value = data.get('text')
+            deadline_value = data.get('deadline')
+
+            if not text_value:
+                return JsonResponse(
+                    {'error': 'Текст задачи не может быть пустым'}, status=400)
+
+            Todo.objects.filter(pk=pk).update(
+                text=text_value,
+                deadline=deadline_value if deadline_value else None
+            )
+            return JsonResponse({'status': 'success'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Невалидный JSON'}, status=400)
+
+    return JsonResponse({'error': 'Метод не поддерживается'}, status=405)

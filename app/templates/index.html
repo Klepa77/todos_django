@@ -57,7 +57,7 @@
                               d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                               clip-rule="evenodd"/>
                     </svg>
-                    Добавить
+                    <span>Добавить</span>
                 </button>
             </div>
         </form>
@@ -200,10 +200,12 @@
     </div>
 </div>
 <script>
+    let mode = 'create'
     let buttons = document.querySelectorAll('.delete-button')
     let modal = document.querySelector('#deleteModal')
     let btnDelete = document.querySelector('#confirmDeleteBtn')
     let deleteId = null
+    let editId = null
     const csrfToken = getCookie('csrftoken');
     let form = document.querySelector('.form')
     let inputTodo = document.querySelector('.todo-input')
@@ -211,9 +213,18 @@
 
     form.addEventListener('submit', (event) => {
         event.preventDefault()
+
         let text = inputTodo.value
         let deadline = dateInput.value
 
+        if (mode==='create'){
+            createTodo(text,deadline)
+            return
+        }
+        editTodo(text,deadline,editId)
+    })
+
+    function createTodo(text, deadline) {
         fetch(`/app/add_todo`, {
             method: 'POST',
             headers: {
@@ -234,7 +245,30 @@
             })
             .catch(error => console.warn(error));
 
-    })
+    }
+
+    function editTodo(text, deadline,id) {
+        fetch(`/app/update_todo/${id}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json; charset=UTF-8',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({
+                text: text,
+                deadline: deadline
+            })
+        })
+            .then((res) => {
+                return res.json();
+            })
+            .then((data) => {
+                location.reload();
+            })
+            .catch(error => console.warn(error));
+
+    }
 
     buttons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -307,7 +341,7 @@
     let editButtons = document.querySelectorAll('.edit-button')
     editButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            let editId = button.dataset.id
+             editId = button.dataset.id
 
             fetch(`/app/get_todo/${editId}`, {
                 method: 'GET',
@@ -327,11 +361,16 @@
         })
 
     })
+    let submitButton =
+        document.querySelector('.submit-button').querySelector('span')
 
     function showTodo(todo) {
         inputTodo.value = todo.text
         dateInput.value = todo.deadline.slice(0, 16);
         inputTodo.dataset.id = todo.id
+        submitButton.textContent = 'Изменить'
+        mode = 'edit'
+        console.log(mode)
 
 
     }
